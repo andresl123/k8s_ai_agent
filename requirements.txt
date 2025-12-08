@@ -1,0 +1,16 @@
+# Web Server & API (From main.py)
+fastapi
+uvicorn
+
+# Google Agent Framework
+google-adk
+
+# Kubernetes API Client (From: from kubernetes import client, config)
+kubernetes
+
+# Data Validation (From: from pydantic import BaseModel)
+pydantic
+
+# LLM Interface (From: from google.adk.models.lite_llm ...)
+# Required because you are using the "LiteLlm" wrapper with an Ollama model
+litellm
