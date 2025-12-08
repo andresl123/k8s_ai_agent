@@ -1,0 +1,74 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      short_sha: ${{ steps.slug.outputs.sha8 }}
+    steps:
+      - name: Checkout Application Repo
+        uses: actions/checkout@v4
+
+      - name: Get Short SHA
+        id: slug
+        run: echo "sha8=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            andresl123/k8s-ai-agent:latest
+            andresl123/k8s-ai-agent:sha-${{ steps.slug.outputs.sha8 }}
+
+  update-gitops:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitOps Manifests
+        uses: actions/checkout@v4
+        with:
+          repository: andresl123/k8s_ai_agent_manifests
+          token: ${{ secrets.GITOPS_PAT }}
+
+      - name: Update Image Tag
+        env:
+          NEW_TAG: sha-${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          # Use sed to update the image tag in the deployment file
+          # Pattern matches: image: andresl123/k8s-ai-agent:<tag>
+          sed -i "s|image: andresl123/k8s-ai-agent:.*|image: andresl123/k8s-ai-agent:$NEW_TAG|" k8s/deployment.yaml
+          
+          # Verify change
+          cat k8s/deployment.yaml | grep "image:"
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions CI"
+          git config --global user.email "ci@github.com"
+          
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -am "Update image tag to $NEW_TAG"
+            git push origin main
+          fi
