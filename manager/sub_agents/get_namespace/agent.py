@@ -4,7 +4,7 @@ from kubernetes import client, config
 import os
 
 # Setting the LLM
-agent_model = "ollama_chat/qwen3:14b"
+agent_model = "ollama_chat/gemma3:12b"
 
 def get_namespaces() -> dict:
     config.load_kube_config(config_file="/home/andre/Documents/google_adk/multi_agent_manager_k8s/manager/kubeconfig")

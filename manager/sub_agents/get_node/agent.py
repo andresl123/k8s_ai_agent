@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 import os
 
 # Setting the LLM
-agent_model = "ollama_chat/qwen3:14b"
+agent_model = "ollama_chat/gemma3:12b"
 
 #export the path of you kubeconfig file
 kubeconfig = os.environ.get("KUBECONFIG")

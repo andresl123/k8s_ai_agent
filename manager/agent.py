@@ -12,7 +12,7 @@ import os
 from starlette.routing import get_name
 
 # Setting the LLM
-agent_model = "ollama_chat/qwen3:14b"
+agent_model = "ollama_chat/gemma3:12b"
 
 root_agent = Agent(
     name="manager",
