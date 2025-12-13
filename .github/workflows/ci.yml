@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-push:
@@ -55,8 +55,8 @@ jobs:
         run: |
           # Use sed to update the image tag in the deployment file
           # Pattern matches: image: andresl123/k8s-ai-agent:<tag>
-          sed -i "s|image: andresl123/k8s-ai-agent:.*|image: andresl123/k8s-ai-agent:$NEW_TAG|" k8s/deployment.yaml
-          
+          sed -i "s|image: .*k8s-ai-agent:.*|image: andresl123/k8s-ai-agent:$NEW_TAG|" k8s/deployment.yaml
+
           # Verify change
           cat k8s/deployment.yaml | grep "image:"
 
@@ -64,7 +64,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions CI"
           git config --global user.email "ci@github.com"
-          
+
           # Check for changes
           if git diff --quiet; then
             echo "No changes to commit"
