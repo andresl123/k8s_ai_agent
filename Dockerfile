@@ -35,8 +35,9 @@ COPY . .
 ENV HOST="0.0.0.0" \
     SESSION_DB_URL="sqlite:////data/sessions.db"
 
-# Create data directory and ensure appuser owns it
-RUN mkdir /data && chown appuser:appuser /data
+# Create data directory and ensure appuser owns it and the app directory
+RUN mkdir /data && chown appuser:appuser /data \
+    && mkdir -p /app/.adk && chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
